@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sliding Puzzle Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            margin-top: 20px;
+        }
+
+        #puzzle {
+            display: grid;
+            grid-template-columns: repeat(4, 80px);
+            grid-gap: 5px;
+            justify-content: center;
+            margin: 20px auto;
+        }
+
+        .tile {
+            width: 80px;
+            height: 80px;
+            background-color: #007bff;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .empty {
+            background-color: #e0e0e0;
+            cursor: default;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sliding Puzzle Game</h1>
+    <div id="puzzle"></div>
+    <button onclick="shuffleTiles()">Shuffle</button>
+
+    <script>
+        const puzzle = document.getElementById('puzzle');
+        let tiles = [];
+
+        function createPuzzle() {
+            tiles = [...Array(15).keys()].map(x => x + 1); // Numbers 1 to 15
+            tiles.push(null); // Empty space
+            renderPuzzle();
+        }
+
+        function renderPuzzle() {
+            puzzle.innerHTML = '';
+            tiles.forEach((tile, index) => {
+                const tileElement = document.createElement('div');
+                tileElement.className = tile ? 'tile' : 'tile empty';
+                tileElement.textContent = tile || '';
+                tileElement.addEventListener('click', () => moveTile(index));
+                puzzle.appendChild(tileElement);
+            });
+        }
+
+        function moveTile(index) {
+            const emptyIndex = tiles.indexOf(null);
+            const validMoves = [
+                emptyIndex - 1, // Left
+                emptyIndex + 1, // Right
+                emptyIndex - 4, // Up
+                emptyIndex + 4  // Down
+            ];
+
+            if (validMoves.includes(index) && isValidMove(index, emptyIndex)) {
+                [tiles[index], tiles[emptyIndex]] = [tiles[emptyIndex], tiles[index]];
+                renderPuzzle();
+                checkWin();
+            }
+        }
+
+        function isValidMove(index, emptyIndex) {
+            if (Math.abs(index - emptyIndex) === 1) {
+                return Math.floor(index / 4) === Math.floor(emptyIndex / 4); // Same row
+            }
+            return true;
+        }
+
+        function shuffleTiles() {
+            for (let i = tiles.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+            }
+            renderPuzzle();
+        }
+
+        function checkWin() {
+            const isSolved = tiles.slice(0, 15).every((tile, index) => tile === index + 1);
+            if (isSolved) {
+                setTimeout(() => alert('Congratulations! You solved the puzzle!'), 100);
+            }
+        }
+
+        createPuzzle();
+    </script>
+</body>
+</html>
